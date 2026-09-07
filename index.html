@@ -1040,18 +1040,29 @@
   }
   
   async function fetchYahoo(symbol) {
-    // Uses corsproxy.io as CORS bypass
-    try {
-      const url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + symbol);
-      const r = await fetch(url);
-      const d = await r.json();
-      const result = d.chart.result[0];
-      const meta = result.meta;
-      const price = meta.regularMarketPrice;
-      const prevClose = meta.chartPreviousClose || meta.previousClose;
-      const change = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
-      return { price, change, timestamp: Date.now() };
-    } catch(e) { return null; }
+    // Multiple CORS proxies with fallback
+    const target = 'https://query1.finance.yahoo.com/v8/finance/chart/' + symbol;
+    const proxies = [
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(target),
+      'https://corsproxy.io/?' + encodeURIComponent(target),
+      'https://cors.eu.org/' + target,
+      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(target)
+    ];
+    
+    for (const proxyUrl of proxies) {
+      try {
+        const r = await fetch(proxyUrl);
+        if (!r.ok) continue;
+        const d = await r.json();
+        if (!d.chart || !d.chart.result || !d.chart.result[0]) continue;
+        const meta = d.chart.result[0].meta;
+        const price = meta.regularMarketPrice;
+        const prevClose = meta.chartPreviousClose || meta.previousClose;
+        const change = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
+        return { price, change, timestamp: Date.now() };
+      } catch(e) { continue; }
+    }
+    return null;
   }
   
   async function fetchAllPrices() {
@@ -1142,16 +1153,26 @@
       updateFearGreed('btc', btcFG);
     } catch(e){}
     
-    // CNN Fear & Greed (via proxy)
-    try {
-      const url = 'https://corsproxy.io/?' + encodeURIComponent('https://production.dataviz.cnn.io/index/fearandgreed/graphdata');
-      const r = await fetch(url);
-      const d = await r.json();
-      const val = Math.round(d.fear_and_greed.score);
-      const stockFG = { value: val, label: d.fear_and_greed.rating };
-      cache.fg.stock = stockFG;
-      updateFearGreed('stock', stockFG);
-    } catch(e){}
+    // CNN Fear & Greed (via proxy with fallback)
+    const cnnTarget = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
+    const cnnProxies = [
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(cnnTarget),
+      'https://corsproxy.io/?' + encodeURIComponent(cnnTarget),
+      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(cnnTarget)
+    ];
+    for (const proxyUrl of cnnProxies) {
+      try {
+        const r = await fetch(proxyUrl);
+        if (!r.ok) continue;
+        const d = await r.json();
+        if (!d.fear_and_greed) continue;
+        const val = Math.round(d.fear_and_greed.score);
+        const stockFG = { value: val, label: d.fear_and_greed.rating };
+        cache.fg.stock = stockFG;
+        updateFearGreed('stock', stockFG);
+        break;
+      } catch(e){ continue; }
+    }
     
     saveCached(cache);
   }
