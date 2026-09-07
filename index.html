@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PEC MoneyControl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-0: #0a0a0f;
+    --bg-1: #0f0f17;
+    --bg-2: #14141f;
+    --bg-3: #1a1a26;
+    --bg-4: #22222f;
+    --border: #26263a;
+    --border-strong: #34344a;
+    --text-1: #f5f5fa;
+    --text-2: #9999b0;
+    --text-3: #666680;
+    --accent-blue: #4d8fff;
+    --accent-blue-bg: rgba(77, 143, 255, 0.1);
+    --accent-green: #4ade80;
+    --accent-green-bg: rgba(74, 222, 128, 0.1);
+    --accent-gold: #fbbf24;
+    --accent-gold-bg: rgba(251, 191, 36, 0.1);
+    --accent-orange: #fb923c;
+    --accent-orange-bg: rgba(251, 146, 60, 0.1);
+    --accent-purple: #a78bfa;
+    --accent-purple-bg: rgba(167, 139, 250, 0.1);
+    --accent-red: #f87171;
+    --accent-red-bg: rgba(248, 113, 113, 0.1);
+    --accent-gray: #a1a1b0;
+    --accent-gray-bg: rgba(161, 161, 176, 0.1);
+  }
+  body {
+    background: var(--bg-0);
+    color: var(--text-1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #4d8fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-left p { font-size: 13px; color: var(--text-2); font-weight: 400; }
+  .header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-2);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--accent-green);
+    font-weight: 500;
+  }
+  .btn-refresh {
+    background: var(--bg-2);
+    color: var(--text-1);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-refresh:hover {
+    background: var(--bg-3);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+  }
+  .btn-refresh.loading i { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  .stats-bar {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-2);
+    font-weight: 600;
+  }
+  .stat-value {
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .stat-value.up { color: var(--accent-green); }
+  .stat-value.down { color: var(--accent-red); }
+  .stat-value.warning { color: var(--accent-gold); }
+  
+  .prices-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .price-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+  .price-card:hover {
+    background: var(--bg-3);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+  .price-card.gold { --accent: var(--accent-gold); }
+  .price-card.btc { --accent: var(--accent-orange); }
+  .price-card.sp { --accent: var(--accent-green); }
+  .price-card.ndx { --accent: var(--accent-purple); }
+  .price-card.dxy { --accent: var(--accent-blue); }
+  .price-card.bond { --accent: var(--accent-red); }
+  .price-label {
+    font-size: 11px;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .price-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 6px;
+    letter-spacing: -0.02em;
+  }
+  .price-change {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .price-change.up { color: var(--accent-green); }
+  .price-change.down { color: var(--accent-red); }
+  .price-change.neutral { color: var(--text-3); }
+  .price-updated {
+    font-size: 10px;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+  
+  /* NEWS FEED */
+  .news-section {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .news-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .news-title h2 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .news-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .filter-btn:hover {
+    color: var(--text-1);
+    border-color: var(--border-strong);
+  }
+  .filter-btn.active {
+    background: var(--accent-blue-bg);
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+  }
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 10px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+  .news-item {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-decoration: none;
+    color: var(--text-1);
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .news-item:hover {
+    background: var(--bg-4);
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+  }
+  .news-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .news-source {
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .news-lang {
+    background: var(--bg-4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+  }
+  .news-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-fed { background: var(--accent-blue-bg); color: var(--accent-blue); }
+  .badge-macro { background: var(--accent-green-bg); color: var(--accent-green); }
+  .badge-crypto { background: var(--accent-orange-bg); color: var(--accent-orange); }
+  .badge-gold { background: var(--accent-gold-bg); color: var(--accent-gold); }
+  .badge-geo { background: var(--accent-red-bg); color: var(--accent-red); }
+  .badge-general { background: var(--accent-gray-bg); color: var(--accent-gray); }
+  .news-title-text {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--text-1);
+  }
+  .news-time {
+    color: var(--text-3);
+    font-size: 10px;
+    margin-left: auto;
+  }
+  .news-loading, .news-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--text-3);
+    font-size: 13px;
+  }
+  
+  /* FEAR & GREED */
+  .fg-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .fg-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .fg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .fg-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-2);
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .fg-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .fg-status {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .fg-bar {
+    height: 6px;
+    background: var(--bg-4);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .fg-progress {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s;
+  }
+  .fg-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+  
+  /* CALENDAR */
+  .calendar-section {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .calendar-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .calendar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--bg-3);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent-blue);
+  }
+  .cal-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-blue);
+    font-weight: 600;
+    min-width: 60px;
+  }
+  .cal-event {
+    font-size: 13px;
+    flex: 1;
+  }
+  .cal-country {
+    font-size: 11px;
+    color: var(--text-2);
+    background: var(--bg-4);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .cal-impact {
+    display: flex;
+    gap: 2px;
+  }
+  .impact-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--bg-4);
+  }
+  .impact-dot.active { background: var(--accent-red); }
+  
+  /* SECTIONS */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .grid { display: grid; gap: 10px; }
+  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .grid-6 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .tile {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-1);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tile:hover {
+    background: var(--bg-3);
+    border-color: var(--accent, var(--border-strong));
+    transform: translateY(-2px);
+  }
+  .tile-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+  .tile-content { flex: 1; min-width: 0; }
+  .tile-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; line-height: 1.2; }
+  .tile-desc { font-size: 12px; color: var(--text-2); line-height: 1.35; }
+  .tile-ext { color: var(--text-3); font-size: 14px; flex-shrink: 0; }
+  .tile:hover .tile-ext { color: var(--accent, var(--text-1)); }
+  .cat-cb { --accent: var(--accent-blue); --accent-bg: var(--accent-blue-bg); }
+  .cat-mkt { --accent: var(--accent-green); --accent-bg: var(--accent-green-bg); }
+  .cat-gold { --accent: var(--accent-gold); --accent-bg: var(--accent-gold-bg); }
+  .cat-btc { --accent: var(--accent-orange); --accent-bg: var(--accent-orange-bg); }
+  .cat-news { --accent: var(--accent-gray); --accent-bg: var(--accent-gray-bg); }
+  .cat-x { --accent: var(--accent-purple); --accent-bg: var(--accent-purple-bg); }
+  .tile-x { padding: 10px 12px; }
+  .tile-x .tile-icon { width: 30px; height: 30px; font-size: 14px; }
+  .tile-x .tile-title { font-size: 13px; }
+  
+  /* NOTES */
+  .notes-section {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+  .notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .notes-header h2 { font-size: 15px; font-weight: 600; }
+  #notes-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text-1);
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  #notes-textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+  }
+  .notes-status {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 6px;
+  }
+  
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-3);
+    font-size: 12px;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-1); }
+  ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+  
+  @media (max-width: 768px) {
+    body { padding: 12px; }
+    .fg-row { grid-template-columns: 1fr; }
+    .news-grid { max-height: 600px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="header-left">
+      <h1>PEC MoneyControl</h1>
+      <p id="date-display">Cargando...</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-refresh" id="refresh-btn" onclick="refreshAll()">
+        <i class="ti ti-refresh"></i>
+        <span>Actualizar</span>
+      </button>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Semáforo mercado</span>
+      <span class="stat-value up" id="market-mood">🟢 Cauteloso</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Próxima Fed</span>
+      <span class="stat-value" id="next-fed">17 sep 2026</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Días para Fed</span>
+      <span class="stat-value warning" id="days-fed">--</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Tipos Fed</span>
+      <span class="stat-value" id="fed-rate">4.25–4.50%</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">VIX (miedo)</span>
+      <span class="stat-value up" id="vix-value">--</span>
+    </div>
+  </div>
+
+  <div class="prices-row" id="prices-row">
+    <div class="price-card gold" data-symbol="gold">
+      <div class="price-label"><i class="ti ti-coin"></i>Oro</div>
+      <div class="price-value" data-field="price">Cargando...</div>
+      <div class="price-change neutral" data-field="change">--</div>
+      <div class="price-updated" data-field="updated">--</div>
+    </div>
+    <div class="price-card btc" data-symbol="btc">
+      <div class="price-label"><i class="ti ti-currency-bitcoin"></i>Bitcoin</div>
+      <div class="price-value" data-field="price">Cargando...</div>
+      <div class="price-change neutral" data-field="change">--</div>
+      <div class="price-updated" data-field="updated">--</div>
+    </div>
+    <div class="price-card sp" data-symbol="sp500">
+      <div class="price-label"><i class="ti ti-trending-up"></i>S&P 500</div>
+      <div class="price-value" data-field="price">Cargando...</div>
+      <div class="price-change neutral" data-field="change">--</div>
+      <div class="price-updated" data-field="updated">--</div>
+    </div>
+    <div class="price-card ndx" data-symbol="nasdaq">
+      <div class="price-label"><i class="ti ti-chart-line"></i>Nasdaq</div>
+      <div class="price-value" data-field="price">Cargando...</div>
+      <div class="price-change neutral" data-field="change">--</div>
+      <div class="price-updated" data-field="updated">--</div>
+    </div>
+    <div class="price-card dxy" data-symbol="dxy">
+      <div class="price-label"><i class="ti ti-currency-dollar"></i>DXY</div>
+      <div class="price-value" data-field="price">Cargando...</div>
+      <div class="price-change neutral" data-field="change">--</div>
+      <div class="price-updated" data-field="updated">--</div>
+    </div>
+    <div class="price-card bond" data-symbol="bond10y">
+      <div class="price-label"><i class="ti ti-chart-arrows-vertical"></i>10Y USA</div>
+      <div class="price-value" data-field="price">Cargando...</div>
+      <div class="price-change neutral" data-field="change">--</div>
+      <div class="price-updated" data-field="updated">--</div>
+    </div>
+  </div>
+
+  <!-- NEWS SECTION -->
+  <div class="news-section">
+    <div class="news-header">
+      <div class="news-title">
+        <div class="live-dot"></div>
+        <h2>Noticias en vivo · Mercados</h2>
+      </div>
+      <div class="news-filters" id="news-filters">
+        <button class="filter-btn active" data-filter="all">Todo</button>
+        <button class="filter-btn" data-filter="fed">Fed / Bancos centrales</button>
+        <button class="filter-btn" data-filter="macro">Macro</button>
+        <button class="filter-btn" data-filter="crypto">Cripto</button>
+        <button class="filter-btn" data-filter="gold">Oro</button>
+        <button class="filter-btn" data-filter="geo">Geopolítica</button>
+      </div>
+    </div>
+    <div class="news-grid" id="news-grid">
+      <div class="news-loading">Cargando noticias...</div>
+    </div>
+  </div>
+
+  <!-- FEAR & GREED -->
+  <div class="fg-row">
+    <div class="fg-card">
+      <div class="fg-header">
+        <span class="fg-label">Fear & Greed · Bolsa (CNN)</span>
+        <span class="fg-status" id="fg-stock-status" style="color: var(--text-3);">--</span>
+      </div>
+      <div class="fg-value" id="fg-stock-value" style="margin-bottom: 10px;">--</div>
+      <div class="fg-bar">
+        <div class="fg-progress" id="fg-stock-progress" style="width: 0%; background: var(--text-3);"></div>
+      </div>
+      <div class="fg-scale">
+        <span>Miedo extremo</span>
+        <span>Codicia extrema</span>
+      </div>
+    </div>
+    <div class="fg-card">
+      <div class="fg-header">
+        <span class="fg-label">Fear & Greed · Bitcoin</span>
+        <span class="fg-status" id="fg-btc-status" style="color: var(--text-3);">--</span>
+      </div>
+      <div class="fg-value" id="fg-btc-value" style="margin-bottom: 10px;">--</div>
+      <div class="fg-bar">
+        <div class="fg-progress" id="fg-btc-progress" style="width: 0%; background: var(--text-3);"></div>
+      </div>
+      <div class="fg-scale">
+        <span>Miedo extremo</span>
+        <span>Codicia extrema</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="calendar-section">
+    <div class="calendar-header">
+      <div class="section-icon" style="background: var(--accent-blue-bg); color: var(--accent-blue);">
+        <i class="ti ti-calendar-event"></i>
+      </div>
+      <h2>Calendario económico · Esta semana</h2>
+      <a href="https://www.investing.com/economic-calendar/" target="_blank" style="margin-left: auto; color: var(--accent-blue); font-size: 12px; text-decoration: none;">Ver completo →</a>
+    </div>
+    <div class="calendar-list">
+      <div class="cal-item">
+        <span class="cal-time">14:30</span>
+        <span class="cal-event">Peticiones subsidio desempleo semanales</span>
+        <span class="cal-country">🇺🇸 USA</span>
+        <span class="cal-impact"><span class="impact-dot active"></span><span class="impact-dot active"></span><span class="impact-dot"></span></span>
+      </div>
+      <div class="cal-item">
+        <span class="cal-time">Todo día</span>
+        <span class="cal-event">Simposio Jackson Hole comienza</span>
+        <span class="cal-country">🇺🇸 USA</span>
+        <span class="cal-impact"><span class="impact-dot active"></span><span class="impact-dot active"></span><span class="impact-dot active"></span></span>
+      </div>
+      <div class="cal-item">
+        <span class="cal-time">16:00</span>
+        <span class="cal-event">Kevin Warsh (Fed) discurso Jackson Hole</span>
+        <span class="cal-country">🇺🇸 USA</span>
+        <span class="cal-impact"><span class="impact-dot active"></span><span class="impact-dot active"></span><span class="impact-dot active"></span></span>
+      </div>
+      <div class="cal-item">
+        <span class="cal-time">01:30</span>
+        <span class="cal-event">Tokyo CPI · Desempleo Japón</span>
+        <span class="cal-country">🇯🇵 JPN</span>
+        <span class="cal-impact"><span class="impact-dot active"></span><span class="impact-dot active"></span><span class="impact-dot"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANCOS CENTRALES -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--accent-blue-bg); color: var(--accent-blue);">
+        <i class="ti ti-building-bank"></i>
+      </div>
+      <h2 class="section-title">Bancos centrales · El control mundial</h2>
+    </div>
+    <div class="grid grid-4">
+      <a class="tile cat-cb" href="https://fred.stlouisfed.org" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-chart-line"></i></div>
+        <div class="tile-content"><div class="tile-title">FRED</div><div class="tile-desc">La biblia de los datos macro</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.federalreserve.gov" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-flag"></i></div>
+        <div class="tile-content"><div class="tile-title">Fed oficial</div><div class="tile-desc">Comunicados y discursos FOMC</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-gauge"></i></div>
+        <div class="tile-content"><div class="tile-title">CME FedWatch</div><div class="tile-desc">Probabilidad próxima decisión</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.newyorkfed.org/markets/data-hub" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-database"></i></div>
+        <div class="tile-content"><div class="tile-title">NY Fed data hub</div><div class="tile-desc">Repo, tesorería, mercados</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.ecb.europa.eu" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-building-bank"></i></div>
+        <div class="tile-content"><div class="tile-title">BCE</div><div class="tile-desc">Banco Central Europeo</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.bis.org" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-world"></i></div>
+        <div class="tile-content"><div class="tile-title">BIS</div><div class="tile-desc">Banco de los bancos centrales</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.bankofengland.co.uk" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-crown"></i></div>
+        <div class="tile-content"><div class="tile-title">Bank of England</div><div class="tile-desc">Banco central UK</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+      <a class="tile cat-cb" href="https://www.boj.or.jp/en/" target="_blank" rel="noopener">
+        <div class="tile-icon"><i class="ti ti-yen"></i></div>
+        <div class="tile-content"><div class="tile-title">Bank of Japan</div><div class="tile-desc">Banco central Japón</div></div>
+        <i class="ti ti-external-link tile-ext"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- MERCADOS -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--accent-green-bg); color: var(--accent-green);">
+        <i class="ti ti-chart-candle"></i>
+      </div>
+      <h2 class="section-title">Mercados · Trading</h2>
+    </div>
+    <div class="grid grid-4">
+      <a class="tile cat-mkt" href="https://www.tradingview.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-chart-candle"></i></div><div class="tile-content"><div class="tile-title">TradingView</div><div class="tile-desc">Gráficos pro</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://finance.yahoo.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-briefcase"></i></div><div class="tile-content"><div class="tile-title">Yahoo Finance</div><div class="tile-desc">Cotizaciones y noticias</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://www.investing.com/economic-calendar/" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-calendar-event"></i></div><div class="tile-content"><div class="tile-title">Calendario económico</div><div class="tile-desc">Eventos del día</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://finviz.com/map.ashx" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-grid-dots"></i></div><div class="tile-content"><div class="tile-title">Finviz heatmap</div><div class="tile-desc">Mapa S&P 500 en vivo</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://www.koyfin.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-layout-dashboard"></i></div><div class="tile-content"><div class="tile-title">Koyfin</div><div class="tile-desc">Alternativa gratis Bloomberg</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://seekingalpha.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-eye"></i></div><div class="tile-content"><div class="tile-title">Seeking Alpha</div><div class="tile-desc">Análisis y opinión</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://www.marketwatch.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-report-analytics"></i></div><div class="tile-content"><div class="tile-title">MarketWatch</div><div class="tile-desc">Noticias y datos</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-mkt" href="https://www.morningstar.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-star"></i></div><div class="tile-content"><div class="tile-title">Morningstar</div><div class="tile-desc">Fondos y ETFs</div></div><i class="ti ti-external-link tile-ext"></i></a>
+    </div>
+  </section>
+
+  <!-- ORO -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--accent-gold-bg); color: var(--accent-gold);">
+        <i class="ti ti-coin"></i>
+      </div>
+      <h2 class="section-title">Oro y metales preciosos</h2>
+    </div>
+    <div class="grid grid-4">
+      <a class="tile cat-gold" href="https://www.kitco.com/charts/gold" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-coin"></i></div><div class="tile-content"><div class="tile-title">Kitco</div><div class="tile-desc">Spot oro y análisis</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-gold" href="https://goldprice.org" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-currency-dollar"></i></div><div class="tile-content"><div class="tile-title">GoldPrice.org</div><div class="tile-desc">Oro y plata en vivo</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-gold" href="https://www.gold.org" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-file-analytics"></i></div><div class="tile-content"><div class="tile-title">World Gold Council</div><div class="tile-desc">Compras bancos centrales</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-gold" href="https://www.bullionvault.es" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-shield-lock"></i></div><div class="tile-content"><div class="tile-title">BullionVault</div><div class="tile-desc">Comprar oro físico online</div></div><i class="ti ti-external-link tile-ext"></i></a>
+    </div>
+  </section>
+
+  <!-- BITCOIN -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--accent-orange-bg); color: var(--accent-orange);">
+        <i class="ti ti-currency-bitcoin"></i>
+      </div>
+      <h2 class="section-title">Bitcoin y cripto</h2>
+    </div>
+    <div class="grid grid-4">
+      <a class="tile cat-btc" href="https://www.coingecko.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-currency-bitcoin"></i></div><div class="tile-content"><div class="tile-title">CoinGecko</div><div class="tile-desc">Precios y datos cripto</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-btc" href="https://bitbo.io" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-chart-dots"></i></div><div class="tile-content"><div class="tile-title">Bitbo</div><div class="tile-desc">Todo Bitcoin en 1 pantalla</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-btc" href="https://studio.glassnode.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-atom-2"></i></div><div class="tile-content"><div class="tile-title">Glassnode</div><div class="tile-desc">On-chain avanzado</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-btc" href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-mood-neutral"></i></div><div class="tile-content"><div class="tile-title">Fear & Greed BTC</div><div class="tile-desc">Sentimiento del mercado</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-btc" href="https://coinmarketcap.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-chart-bar"></i></div><div class="tile-content"><div class="tile-title">CoinMarketCap</div><div class="tile-desc">Capitalización y volumen</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-btc" href="https://mempool.space" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-network"></i></div><div class="tile-content"><div class="tile-title">Mempool.space</div><div class="tile-desc">Red BTC en tiempo real</div></div><i class="ti ti-external-link tile-ext"></i></a>
+    </div>
+  </section>
+
+  <!-- FUENTES NOTICIAS -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--accent-gray-bg); color: var(--accent-gray);">
+        <i class="ti ti-news"></i>
+      </div>
+      <h2 class="section-title">Fuentes de noticias directas</h2>
+    </div>
+    <div class="grid grid-4">
+      <a class="tile cat-news" href="https://www.zerohedge.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-flame"></i></div><div class="tile-content"><div class="tile-title">ZeroHedge</div><div class="tile-desc">Contrarian macro</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://thekobeissiletter.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-news"></i></div><div class="tile-content"><div class="tile-title">Kobeissi Letter</div><div class="tile-desc">Newsletter macro</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://www.reuters.com/business/finance/" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-globe"></i></div><div class="tile-content"><div class="tile-title">Reuters</div><div class="tile-desc">Fuente primaria</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://www.bloomberg.com/markets" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-building-skyscraper"></i></div><div class="tile-content"><div class="tile-title">Bloomberg</div><div class="tile-desc">Noticias top</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://www.expansion.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-newspaper"></i></div><div class="tile-content"><div class="tile-title">Expansión</div><div class="tile-desc">Finanzas España</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://www.eleconomista.es" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-report"></i></div><div class="tile-content"><div class="tile-title">El Economista</div><div class="tile-desc">Economía España</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://cincodias.elpais.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-book"></i></div><div class="tile-content"><div class="tile-title">Cinco Días</div><div class="tile-desc">Diario económico</div></div><i class="ti ti-external-link tile-ext"></i></a>
+      <a class="tile cat-news" href="https://dailyshotbrief.com" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-mail"></i></div><div class="tile-content"><div class="tile-title">The Daily Shot</div><div class="tile-desc">Gráficos macro</div></div><i class="ti ti-external-link tile-ext"></i></a>
+    </div>
+  </section>
+
+  <!-- X -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background: var(--accent-purple-bg); color: var(--accent-purple);">
+        <i class="ti ti-brand-x"></i>
+      </div>
+      <h2 class="section-title">X · Voces macro (donde pasa todo primero)</h2>
+    </div>
+    <div class="grid grid-6">
+      <a class="tile tile-x cat-x" href="https://x.com/KobeissiLetter" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@KobeissiLetter</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/LynAldenContact" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@LynAldenContact</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/RaoulGMI" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@RaoulGMI</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/DiMartinoBooth" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@DiMartinoBooth</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/nicktimiraos" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@nicktimiraos</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/saylor" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@saylor</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/PeterSchiff" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@PeterSchiff</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/zerohedge" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@zerohedge</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/FirstSquawk" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@FirstSquawk</div></div></a>
+      <a class="tile tile-x cat-x" href="https://x.com/unusual_whales" target="_blank" rel="noopener"><div class="tile-icon"><i class="ti ti-brand-x"></i></div><div class="tile-content"><div class="tile-title">@unusual_whales</div></div></a>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <div class="notes-section">
+    <div class="notes-header">
+      <h2>📝 Mis notas</h2>
+      <span class="notes-status" id="notes-status">Se guardan solas</span>
+    </div>
+    <textarea id="notes-textarea" placeholder="Escribe aquí tus notas, análisis, ideas de trading... se guardan automáticamente en tu navegador."></textarea>
+  </div>
+
+  <footer class="footer">
+    <p><strong>PEC MoneyControl</strong> · Centro de mando financiero personal</p>
+    <p style="margin-top: 6px;">Datos en vivo · Auto-refresh cada 5 min · Fuentes: CoinGecko, Yahoo Finance, Alternative.me, RSS2JSON</p>
+  </footer>
+</div>
+
+<script>
+  // ============================================
+  // CONFIG
+  // ============================================
+  const STORAGE_KEY = 'pec_moneycontrol_data_v1';
+  const NOTES_KEY = 'pec_moneycontrol_notes_v1';
+  const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 min
+  
+  // ============================================
+  // CLOCK & DATE
+  // ============================================
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  function updateDate() {
+    const now = new Date();
+    const fmt = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const dateStr = fmt.format(now);
+    document.getElementById('date-display').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+  }
+  updateClock(); updateDate();
+  setInterval(updateClock, 1000);
+  
+  // ============================================
+  // DIAS PARA FED (próxima reunión: 17 sep 2026)
+  // ============================================
+  function updateDaysFed() {
+    const nextFed = new Date('2026-09-17');
+    const now = new Date();
+    const diff = Math.ceil((nextFed - now) / (1000 * 60 * 60 * 24));
+    const el = document.getElementById('days-fed');
+    if (diff > 0) el.textContent = diff + ' días';
+    else if (diff === 0) el.textContent = 'HOY';
+    else el.textContent = 'Pasada';
+  }
+  updateDaysFed();
+  
+  // ============================================
+  // STORAGE (fallback data)
+  // ============================================
+  function loadCached() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e) { return {}; }
+  }
+  function saveCached(data) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
+  }
+  
+  function timeAgo(timestamp) {
+    if (!timestamp) return '--';
+    const diff = Math.floor((Date.now() - timestamp) / 1000);
+    if (diff < 60) return 'hace ' + diff + 's';
+    if (diff < 3600) return 'hace ' + Math.floor(diff/60) + ' min';
+    if (diff < 86400) return 'hace ' + Math.floor(diff/3600) + ' h';
+    return 'hace ' + Math.floor(diff/86400) + ' días';
+  }
+  
+  function formatNumber(n, decimals = 2) {
+    if (n === null || n === undefined) return '--';
+    return new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    }).format(n);
+  }
+  
+  function renderPrice(symbol, price, change, prefix = '$') {
+    const card = document.querySelector('.price-card[data-symbol="' + symbol + '"]');
+    if (!card) return;
+    
+    const priceEl = card.querySelector('[data-field="price"]');
+    const changeEl = card.querySelector('[data-field="change"]');
+    const updatedEl = card.querySelector('[data-field="updated"]');
+    
+    if (price !== null && price !== undefined) {
+      const decimals = symbol === 'bond10y' || symbol === 'dxy' ? 2 : (symbol === 'btc' ? 0 : 2);
+      priceEl.textContent = prefix + formatNumber(price, decimals) + (symbol === 'bond10y' ? '%' : '');
+    }
+    
+    if (change !== null && change !== undefined) {
+      const isUp = change >= 0;
+      changeEl.className = 'price-change ' + (isUp ? 'up' : 'down');
+      changeEl.innerHTML = (isUp ? '▲' : '▼') + ' ' + formatNumber(Math.abs(change), 2) + '%';
+    }
+    
+    updatedEl.textContent = 'Actualizado ' + timeAgo(Date.now());
+  }
+  
+  function renderFromCache() {
+    const cache = loadCached();
+    Object.keys(cache.prices || {}).forEach(symbol => {
+      const p = cache.prices[symbol];
+      renderPrice(symbol, p.price, p.change, p.prefix);
+      const card = document.querySelector('.price-card[data-symbol="' + symbol + '"]');
+      if (card) {
+        card.querySelector('[data-field="updated"]').textContent = 'Última: ' + timeAgo(p.timestamp);
+      }
+    });
+    if (cache.fg) {
+      updateFearGreed('stock', cache.fg.stock);
+      updateFearGreed('btc', cache.fg.btc);
+    }
+    if (cache.vix) {
+      document.getElementById('vix-value').textContent = formatNumber(cache.vix, 2);
+    }
+  }
+  
+  // ============================================
+  // FETCH PRICES
+  // ============================================
+  async function fetchBitcoin() {
+    try {
+      const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+      const d = await r.json();
+      return { price: d.bitcoin.usd, change: d.bitcoin.usd_24h_change, prefix: '$', timestamp: Date.now() };
+    } catch(e) { return null; }
+  }
+  
+  async function fetchYahoo(symbol) {
+    // Uses corsproxy.io as CORS bypass
+    try {
+      const url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + symbol);
+      const r = await fetch(url);
+      const d = await r.json();
+      const result = d.chart.result[0];
+      const meta = result.meta;
+      const price = meta.regularMarketPrice;
+      const prevClose = meta.chartPreviousClose || meta.previousClose;
+      const change = prevClose ? ((price - prevClose) / prevClose) * 100 : 0;
+      return { price, change, timestamp: Date.now() };
+    } catch(e) { return null; }
+  }
+  
+  async function fetchAllPrices() {
+    const cache = loadCached();
+    cache.prices = cache.prices || {};
+    
+    // Bitcoin
+    const btc = await fetchBitcoin();
+    if (btc) {
+      cache.prices.btc = btc;
+      renderPrice('btc', btc.price, btc.change, '$');
+    }
+    
+    // Yahoo Finance
+    const yahooSymbols = {
+      gold: 'GC=F',      // Gold Futures
+      sp500: '^GSPC',    // S&P 500
+      nasdaq: '^IXIC',   // Nasdaq Composite
+      dxy: 'DX-Y.NYB',   // Dollar Index
+      bond10y: '^TNX',   // 10Y Treasury Yield
+      vix: '^VIX'        // VIX
+    };
+    
+    for (const [key, ticker] of Object.entries(yahooSymbols)) {
+      const data = await fetchYahoo(ticker);
+      if (data) {
+        if (key === 'vix') {
+          cache.vix = data.price;
+          document.getElementById('vix-value').textContent = formatNumber(data.price, 2);
+          const vixEl = document.getElementById('vix-value');
+          if (data.price > 25) vixEl.className = 'stat-value down';
+          else if (data.price > 20) vixEl.className = 'stat-value warning';
+          else vixEl.className = 'stat-value up';
+        } else {
+          const prefix = (key === 'dxy' || key === 'bond10y') ? '' : '$';
+          cache.prices[key] = { ...data, prefix };
+          renderPrice(key, data.price, data.change, prefix);
+        }
+      }
+    }
+    
+    saveCached(cache);
+  }
+  
+  // ============================================
+  // FEAR & GREED
+  // ============================================
+  function updateFearGreed(type, data) {
+    if (!data) return;
+    const value = data.value;
+    const label = data.label || getFGLabel(value);
+    const color = getFGColor(value);
+    
+    document.getElementById('fg-' + type + '-value').textContent = value;
+    document.getElementById('fg-' + type + '-value').style.color = color;
+    document.getElementById('fg-' + type + '-status').textContent = label;
+    document.getElementById('fg-' + type + '-status').style.color = color;
+    document.getElementById('fg-' + type + '-progress').style.width = value + '%';
+    document.getElementById('fg-' + type + '-progress').style.background = color;
+  }
+  
+  function getFGLabel(v) {
+    if (v < 25) return 'Miedo extremo';
+    if (v < 45) return 'Miedo';
+    if (v < 55) return 'Neutral';
+    if (v < 75) return 'Codicia';
+    return 'Codicia extrema';
+  }
+  
+  function getFGColor(v) {
+    if (v < 25) return '#f87171';
+    if (v < 45) return '#fb923c';
+    if (v < 55) return '#fbbf24';
+    if (v < 75) return '#84cc16';
+    return '#4ade80';
+  }
+  
+  async function fetchFearGreed() {
+    const cache = loadCached();
+    cache.fg = cache.fg || {};
+    
+    // Bitcoin Fear & Greed
+    try {
+      const r = await fetch('https://api.alternative.me/fng/?limit=1');
+      const d = await r.json();
+      const btcFG = { value: parseInt(d.data[0].value), label: d.data[0].value_classification };
+      cache.fg.btc = btcFG;
+      updateFearGreed('btc', btcFG);
+    } catch(e){}
+    
+    // CNN Fear & Greed (via proxy)
+    try {
+      const url = 'https://corsproxy.io/?' + encodeURIComponent('https://production.dataviz.cnn.io/index/fearandgreed/graphdata');
+      const r = await fetch(url);
+      const d = await r.json();
+      const val = Math.round(d.fear_and_greed.score);
+      const stockFG = { value: val, label: d.fear_and_greed.rating };
+      cache.fg.stock = stockFG;
+      updateFearGreed('stock', stockFG);
+    } catch(e){}
+    
+    saveCached(cache);
+  }
+  
+  // ============================================
+  // NEWS
+  // ============================================
+  const NEWS_FEEDS = [
+    { url: 'https://feeds.reuters.com/reuters/businessNews', source: 'Reuters', lang: 'en' },
+    { url: 'https://www.marketwatch.com/rss/topstories', source: 'MarketWatch', lang: 'en' },
+    { url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html', source: 'CNBC', lang: 'en' },
+    { url: 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml', source: 'WSJ Markets', lang: 'en' },
+    { url: 'https://www.zerohedge.com/fullrss2.xml', source: 'ZeroHedge', lang: 'en' },
+    { url: 'https://cointelegraph.com/rss', source: 'Cointelegraph', lang: 'en' },
+    { url: 'https://e00-expansion.uecdn.es/rss/economia.xml', source: 'Expansión', lang: 'es' },
+    { url: 'https://www.eleconomista.es/rss/rss-mercados.php', source: 'El Economista', lang: 'es' },
+    { url: 'https://cincodias.elpais.com/seccion/rss/mercados/', source: 'Cinco Días', lang: 'es' },
+    { url: 'https://www.bolsamania.com/rss/mercados.xml', source: 'Bolsamanía', lang: 'es' }
+  ];
+  
+  let allNews = [];
+  let currentFilter = 'all';
+  
+  function categorizeNews(title) {
+    const t = title.toLowerCase();
+    if (/fed|powell|jerome|fomc|bce|lagarde|ecb|banco central|interest rate|tipos|tasa|jackson hole/i.test(t)) return 'fed';
+    if (/bitcoin|btc|crypto|cripto|ethereum|blockchain/i.test(t)) return 'crypto';
+    if (/oro|gold|silver|plata|metals/i.test(t)) return 'gold';
+    if (/war|guerra|ukraine|russia|china|iran|israel|nato|otan|geopolit|trump|putin/i.test(t)) return 'geo';
+    if (/inflation|inflación|gdp|pib|employ|empleo|cpi|ppi|pce|recession|recesión/i.test(t)) return 'macro';
+    return 'general';
+  }
+  
+  function getBadgeName(cat) {
+    return { fed: 'FED', macro: 'MACRO', crypto: 'CRIPTO', gold: 'ORO', geo: 'GEOPOL.', general: 'GENERAL' }[cat] || 'GENERAL';
+  }
+  
+  async function fetchOneFeed(feed) {
+    try {
+      const url = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url) + '&count=10';
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.status !== 'ok') return [];
+      return d.items.map(item => ({
+        title: item.title,
+        link: item.link,
+        pubDate: new Date(item.pubDate).getTime(),
+        source: feed.source,
+        lang: feed.lang,
+        category: categorizeNews(item.title)
+      }));
+    } catch(e) { return []; }
+  }
+  
+  async function fetchAllNews() {
+    const grid = document.getElementById('news-grid');
+    grid.innerHTML = '<div class="news-loading">Cargando noticias...</div>';
+    
+    const promises = NEWS_FEEDS.map(f => fetchOneFeed(f));
+    const results = await Promise.all(promises);
+    allNews = results.flat().sort((a, b) => b.pubDate - a.pubDate).slice(0, 40);
+    renderNews();
+  }
+  
+  function renderNews() {
+    const grid = document.getElementById('news-grid');
+    const filtered = currentFilter === 'all' ? allNews : allNews.filter(n => n.category === currentFilter);
+    
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="news-empty">No hay noticias en esta categoría</div>';
+      return;
+    }
+    
+    grid.innerHTML = filtered.map(n => `
+      <a class="news-item" href="${n.link}" target="_blank" rel="noopener">
+        <div class="news-meta">
+          <span class="news-badge badge-${n.category}">${getBadgeName(n.category)}</span>
+          <span class="news-source">${n.source}</span>
+          <span class="news-lang">${n.lang === 'es' ? '🇪🇸' : '🇬🇧'}</span>
+          <span class="news-time">${timeAgo(n.pubDate)}</span>
+        </div>
+        <div class="news-title-text">${n.title}</div>
+      </a>
+    `).join('');
+  }
+  
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderNews();
+    });
+  });
+  
+  // ============================================
+  // NOTES (localStorage)
+  // ============================================
+  const notesEl = document.getElementById('notes-textarea');
+  const notesStatus = document.getElementById('notes-status');
+  notesEl.value = localStorage.getItem(NOTES_KEY) || '';
+  let saveTimeout;
+  notesEl.addEventListener('input', () => {
+    clearTimeout(saveTimeout);
+    notesStatus.textContent = 'Guardando...';
+    saveTimeout = setTimeout(() => {
+      localStorage.setItem(NOTES_KEY, notesEl.value);
+      notesStatus.textContent = 'Guardado ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    }, 500);
+  });
+  
+  // ============================================
+  // REFRESH
+  // ============================================
+  async function refreshAll() {
+    const btn = document.getElementById('refresh-btn');
+    btn.classList.add('loading');
+    
+    await Promise.all([
+      fetchAllPrices(),
+      fetchFearGreed(),
+      fetchAllNews()
+    ]);
+    
+    btn.classList.remove('loading');
+  }
+  
+  // ============================================
+  // INIT
+  // ============================================
+  renderFromCache();  // pinta lo que haya en caché mientras carga
+  refreshAll();       // carga datos frescos
+  setInterval(refreshAll, REFRESH_INTERVAL_MS);
+</script>
+
+</body>
+</html>
