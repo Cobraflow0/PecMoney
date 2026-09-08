@@ -101,7 +101,7 @@
   }
   .btn-refresh.loading i { animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  
+
   .stats-bar {
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -130,7 +130,7 @@
   .stat-value.up { color: var(--accent-green); }
   .stat-value.down { color: var(--accent-red); }
   .stat-value.warning { color: var(--accent-gold); }
-  
+
   .prices-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -181,7 +181,10 @@
     font-weight: 600;
     margin-top: 6px;
     letter-spacing: -0.02em;
+    transition: color 0.4s;
   }
+  .price-value.flash-up { color: var(--accent-green); }
+  .price-value.flash-down { color: var(--accent-red); }
   .price-change {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -199,7 +202,7 @@
     color: var(--text-3);
     margin-top: 4px;
   }
-  
+
   /* NEWS FEED */
   .news-section {
     background: var(--bg-2);
@@ -263,81 +266,111 @@
     color: var(--accent-blue);
     border-color: var(--accent-blue);
   }
-  .news-grid {
+
+  /* NEWS BY BLOCK (columnas por categoría) */
+  .news-board {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 10px;
-    max-height: 480px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 14px;
+  }
+  .news-column {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+  }
+  .news-col-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .news-col-dot {
+    width: 10px; height: 10px; border-radius: 3px;
+    background: var(--col-accent);
+    flex-shrink: 0;
+  }
+  .news-col-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--col-accent);
+  }
+  .news-col-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-3);
+    background: var(--bg-3);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .news-col-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 420px;
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 4px;
   }
   .news-item {
     background: var(--bg-3);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
+    border-left: 3px solid var(--col-accent);
+    border-radius: 8px;
+    padding: 10px 12px;
     text-decoration: none;
     color: var(--text-1);
     transition: all 0.15s;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
   }
   .news-item:hover {
     background: var(--bg-4);
-    border-color: var(--accent-blue);
-    transform: translateY(-1px);
+    transform: translateX(2px);
   }
   .news-meta {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
-    flex-wrap: wrap;
-  }
-  .news-source {
-    color: var(--text-2);
-    font-weight: 500;
-  }
-  .news-lang {
-    background: var(--bg-4);
-    padding: 2px 6px;
-    border-radius: 4px;
     font-size: 10px;
   }
-  .news-badge {
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .badge-fed { background: var(--accent-blue-bg); color: var(--accent-blue); }
-  .badge-macro { background: var(--accent-green-bg); color: var(--accent-green); }
-  .badge-crypto { background: var(--accent-orange-bg); color: var(--accent-orange); }
-  .badge-gold { background: var(--accent-gold-bg); color: var(--accent-gold); }
-  .badge-geo { background: var(--accent-red-bg); color: var(--accent-red); }
-  .badge-general { background: var(--accent-gray-bg); color: var(--accent-gray); }
+  .news-source { color: var(--text-2); font-weight: 500; }
+  .news-lang { font-size: 11px; }
+  .news-time { color: var(--text-3); font-size: 10px; margin-left: auto; }
   .news-title-text {
     font-size: 13px;
     font-weight: 500;
     line-height: 1.4;
     color: var(--text-1);
   }
-  .news-time {
+  .news-col-empty {
+    font-size: 12px;
     color: var(--text-3);
-    font-size: 10px;
-    margin-left: auto;
+    text-align: center;
+    padding: 20px 10px;
   }
-  .news-loading, .news-empty {
+  .news-loading {
     grid-column: 1 / -1;
     text-align: center;
     padding: 40px;
     color: var(--text-3);
     font-size: 13px;
   }
-  
+  .col-fed { --col-accent: var(--accent-blue); }
+  .col-macro { --col-accent: var(--accent-green); }
+  .col-crypto { --col-accent: var(--accent-orange); }
+  .col-gold { --col-accent: var(--accent-gold); }
+  .col-geo { --col-accent: var(--accent-red); }
+  .col-general { --col-accent: var(--accent-gray); }
+
   /* FEAR & GREED */
   .fg-row {
     display: grid;
@@ -394,7 +427,7 @@
     font-size: 10px;
     color: var(--text-3);
   }
-  
+
   /* CALENDAR */
   .calendar-section {
     background: var(--bg-2);
@@ -456,7 +489,7 @@
     background: var(--bg-4);
   }
   .impact-dot.active { background: var(--accent-red); }
-  
+
   /* SECTIONS */
   .section { margin-bottom: 32px; }
   .section-header {
@@ -528,7 +561,7 @@
   .tile-x { padding: 10px 12px; }
   .tile-x .tile-icon { width: 30px; height: 30px; font-size: 14px; }
   .tile-x .tile-title { font-size: 13px; }
-  
+
   /* NOTES */
   .notes-section {
     background: var(--bg-2);
@@ -566,7 +599,7 @@
     color: var(--text-3);
     margin-top: 6px;
   }
-  
+
   .footer {
     margin-top: 40px;
     padding-top: 20px;
@@ -579,11 +612,10 @@
   ::-webkit-scrollbar-track { background: var(--bg-1); }
   ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
-  
+
   @media (max-width: 768px) {
     body { padding: 12px; }
     .fg-row { grid-template-columns: 1fr; }
-    .news-grid { max-height: 600px; }
   }
 </style>
 </head>
@@ -680,9 +712,10 @@
         <button class="filter-btn" data-filter="crypto">Cripto</button>
         <button class="filter-btn" data-filter="gold">Oro</button>
         <button class="filter-btn" data-filter="geo">Geopolítica</button>
+        <button class="filter-btn" data-filter="general">General</button>
       </div>
     </div>
-    <div class="news-grid" id="news-grid">
+    <div class="news-board" id="news-board">
       <div class="news-loading">Cargando noticias...</div>
     </div>
   </div>
@@ -915,18 +948,20 @@
 
   <footer class="footer">
     <p><strong>PEC MoneyControl</strong> · Centro de mando financiero personal</p>
-    <p style="margin-top: 6px;">Datos en vivo · Auto-refresh cada 5 min · Fuentes: CoinGecko, Yahoo Finance, Alternative.me, RSS2JSON</p>
+    <p style="margin-top: 6px;">Precios cada 1 min · Noticias cada 5 min · Fear&Greed cada 15 min · Fuentes: CoinGecko, Yahoo Finance, Alternative.me, RSS2JSON</p>
   </footer>
 </div>
 
 <script>
   // ============================================
-  // CONFIG
+  // CONFIG · refresco escalonado para no ser bloqueada
   // ============================================
   const STORAGE_KEY = 'pec_moneycontrol_data_v1';
   const NOTES_KEY = 'pec_moneycontrol_notes_v1';
-  const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 min
-  
+  const PRICE_INTERVAL_MS = 60 * 1000;       // precios: 1 min (tiempo real)
+  const NEWS_INTERVAL_MS  = 5 * 60 * 1000;   // noticias: 5 min
+  const FG_INTERVAL_MS    = 15 * 60 * 1000;  // Fear&Greed: cambia 1 vez/día
+
   // ============================================
   // CLOCK & DATE
   // ============================================
@@ -942,7 +977,7 @@
   }
   updateClock(); updateDate();
   setInterval(updateClock, 1000);
-  
+
   // ============================================
   // DIAS PARA FED (próxima reunión: 17 sep 2026)
   // ============================================
@@ -956,7 +991,7 @@
     else el.textContent = 'Pasada';
   }
   updateDaysFed();
-  
+
   // ============================================
   // STORAGE (fallback data)
   // ============================================
@@ -969,7 +1004,18 @@
   function saveCached(data) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
   }
-  
+
+  // Baraja un array (rotar proxies reparte carga y evita bloqueos)
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
   function timeAgo(timestamp) {
     if (!timestamp) return '--';
     const diff = Math.floor((Date.now() - timestamp) / 1000);
@@ -978,7 +1024,7 @@
     if (diff < 86400) return 'hace ' + Math.floor(diff/3600) + ' h';
     return 'hace ' + Math.floor(diff/86400) + ' días';
   }
-  
+
   function formatNumber(n, decimals = 2) {
     if (n === null || n === undefined) return '--';
     return new Intl.NumberFormat('es-ES', {
@@ -986,29 +1032,40 @@
       maximumFractionDigits: decimals
     }).format(n);
   }
-  
+
+  const lastPrices = {};
   function renderPrice(symbol, price, change, prefix = '$') {
     const card = document.querySelector('.price-card[data-symbol="' + symbol + '"]');
     if (!card) return;
-    
+
     const priceEl = card.querySelector('[data-field="price"]');
     const changeEl = card.querySelector('[data-field="change"]');
     const updatedEl = card.querySelector('[data-field="updated"]');
-    
+
     if (price !== null && price !== undefined) {
       const decimals = symbol === 'bond10y' || symbol === 'dxy' ? 2 : (symbol === 'btc' ? 0 : 2);
       priceEl.textContent = prefix + formatNumber(price, decimals) + (symbol === 'bond10y' ? '%' : '');
+
+      // Flash verde/rojo cuando cambia el precio (feedback tiempo real)
+      const prev = lastPrices[symbol];
+      if (prev !== undefined && price !== prev) {
+        priceEl.classList.remove('flash-up', 'flash-down');
+        void priceEl.offsetWidth;
+        priceEl.classList.add(price > prev ? 'flash-up' : 'flash-down');
+        setTimeout(() => priceEl.classList.remove('flash-up', 'flash-down'), 700);
+      }
+      lastPrices[symbol] = price;
     }
-    
+
     if (change !== null && change !== undefined) {
       const isUp = change >= 0;
       changeEl.className = 'price-change ' + (isUp ? 'up' : 'down');
       changeEl.innerHTML = (isUp ? '▲' : '▼') + ' ' + formatNumber(Math.abs(change), 2) + '%';
     }
-    
+
     updatedEl.textContent = 'Actualizado ' + timeAgo(Date.now());
   }
-  
+
   function renderFromCache() {
     const cache = loadCached();
     Object.keys(cache.prices || {}).forEach(symbol => {
@@ -1026,8 +1083,12 @@
     if (cache.vix) {
       document.getElementById('vix-value').textContent = formatNumber(cache.vix, 2);
     }
+    if (cache.news && cache.news.length) {
+      allNews = cache.news;
+      renderNews();
+    }
   }
-  
+
   // ============================================
   // FETCH PRICES
   // ============================================
@@ -1038,17 +1099,16 @@
       return { price: d.bitcoin.usd, change: d.bitcoin.usd_24h_change, prefix: '$', timestamp: Date.now() };
     } catch(e) { return null; }
   }
-  
+
   async function fetchYahoo(symbol) {
-    // Multiple CORS proxies with fallback
     const target = 'https://query1.finance.yahoo.com/v8/finance/chart/' + symbol;
-    const proxies = [
+    // Rotamos el orden de proxies en cada llamada para repartir carga y no quemar ninguno
+    const proxies = shuffle([
       'https://api.allorigins.win/raw?url=' + encodeURIComponent(target),
       'https://corsproxy.io/?' + encodeURIComponent(target),
-      'https://cors.eu.org/' + target,
       'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(target)
-    ];
-    
+    ]);
+
     for (const proxyUrl of proxies) {
       try {
         const r = await fetch(proxyUrl);
@@ -1064,28 +1124,24 @@
     }
     return null;
   }
-  
+
   async function fetchAllPrices() {
     const cache = loadCached();
     cache.prices = cache.prices || {};
-    
+
     // Bitcoin
     const btc = await fetchBitcoin();
     if (btc) {
       cache.prices.btc = btc;
       renderPrice('btc', btc.price, btc.change, '$');
     }
-    
-    // Yahoo Finance
+
+    // Yahoo Finance — en serie con pequeña pausa para no disparar el rate-limit del proxy
     const yahooSymbols = {
-      gold: 'GC=F',      // Gold Futures
-      sp500: '^GSPC',    // S&P 500
-      nasdaq: '^IXIC',   // Nasdaq Composite
-      dxy: 'DX-Y.NYB',   // Dollar Index
-      bond10y: '^TNX',   // 10Y Treasury Yield
-      vix: '^VIX'        // VIX
+      gold: 'GC=F', sp500: '^GSPC', nasdaq: '^IXIC',
+      dxy: 'DX-Y.NYB', bond10y: '^TNX', vix: '^VIX'
     };
-    
+
     for (const [key, ticker] of Object.entries(yahooSymbols)) {
       const data = await fetchYahoo(ticker);
       if (data) {
@@ -1102,11 +1158,12 @@
           renderPrice(key, data.price, data.change, prefix);
         }
       }
+      await sleep(400); // espaciado entre llamadas
     }
-    
+
     saveCached(cache);
   }
-  
+
   // ============================================
   // FEAR & GREED
   // ============================================
@@ -1115,7 +1172,7 @@
     const value = data.value;
     const label = data.label || getFGLabel(value);
     const color = getFGColor(value);
-    
+
     document.getElementById('fg-' + type + '-value').textContent = value;
     document.getElementById('fg-' + type + '-value').style.color = color;
     document.getElementById('fg-' + type + '-status').textContent = label;
@@ -1123,7 +1180,7 @@
     document.getElementById('fg-' + type + '-progress').style.width = value + '%';
     document.getElementById('fg-' + type + '-progress').style.background = color;
   }
-  
+
   function getFGLabel(v) {
     if (v < 25) return 'Miedo extremo';
     if (v < 45) return 'Miedo';
@@ -1131,7 +1188,7 @@
     if (v < 75) return 'Codicia';
     return 'Codicia extrema';
   }
-  
+
   function getFGColor(v) {
     if (v < 25) return '#f87171';
     if (v < 45) return '#fb923c';
@@ -1139,12 +1196,11 @@
     if (v < 75) return '#84cc16';
     return '#4ade80';
   }
-  
+
   async function fetchFearGreed() {
     const cache = loadCached();
     cache.fg = cache.fg || {};
-    
-    // Bitcoin Fear & Greed
+
     try {
       const r = await fetch('https://api.alternative.me/fng/?limit=1');
       const d = await r.json();
@@ -1152,14 +1208,13 @@
       cache.fg.btc = btcFG;
       updateFearGreed('btc', btcFG);
     } catch(e){}
-    
-    // CNN Fear & Greed (via proxy with fallback)
+
     const cnnTarget = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
-    const cnnProxies = [
+    const cnnProxies = shuffle([
       'https://api.allorigins.win/raw?url=' + encodeURIComponent(cnnTarget),
       'https://corsproxy.io/?' + encodeURIComponent(cnnTarget),
       'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(cnnTarget)
-    ];
+    ]);
     for (const proxyUrl of cnnProxies) {
       try {
         const r = await fetch(proxyUrl);
@@ -1173,12 +1228,12 @@
         break;
       } catch(e){ continue; }
     }
-    
+
     saveCached(cache);
   }
-  
+
   // ============================================
-  // NEWS
+  // NEWS · por bloques / categorías
   // ============================================
   const NEWS_FEEDS = [
     { url: 'https://feeds.reuters.com/reuters/businessNews', source: 'Reuters', lang: 'en' },
@@ -1192,10 +1247,20 @@
     { url: 'https://cincodias.elpais.com/seccion/rss/mercados/', source: 'Cinco Días', lang: 'es' },
     { url: 'https://www.bolsamania.com/rss/mercados.xml', source: 'Bolsamanía', lang: 'es' }
   ];
-  
+
+  // Orden y metadatos de las columnas
+  const NEWS_CATS = [
+    { key: 'fed',     name: 'Fed / Bancos centrales', cls: 'col-fed' },
+    { key: 'macro',   name: 'Macro',                  cls: 'col-macro' },
+    { key: 'crypto',  name: 'Cripto',                 cls: 'col-crypto' },
+    { key: 'gold',    name: 'Oro',                    cls: 'col-gold' },
+    { key: 'geo',     name: 'Geopolítica',            cls: 'col-geo' },
+    { key: 'general', name: 'General',                cls: 'col-general' }
+  ];
+
   let allNews = [];
   let currentFilter = 'all';
-  
+
   function categorizeNews(title) {
     const t = title.toLowerCase();
     if (/fed|powell|jerome|fomc|bce|lagarde|ecb|banco central|interest rate|tipos|tasa|jackson hole/i.test(t)) return 'fed';
@@ -1205,11 +1270,7 @@
     if (/inflation|inflación|gdp|pib|employ|empleo|cpi|ppi|pce|recession|recesión/i.test(t)) return 'macro';
     return 'general';
   }
-  
-  function getBadgeName(cat) {
-    return { fed: 'FED', macro: 'MACRO', crypto: 'CRIPTO', gold: 'ORO', geo: 'GEOPOL.', general: 'GENERAL' }[cat] || 'GENERAL';
-  }
-  
+
   async function fetchOneFeed(feed) {
     try {
       const url = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url) + '&count=10';
@@ -1226,39 +1287,68 @@
       }));
     } catch(e) { return []; }
   }
-  
+
   async function fetchAllNews() {
-    const grid = document.getElementById('news-grid');
-    grid.innerHTML = '<div class="news-loading">Cargando noticias...</div>';
-    
-    const promises = NEWS_FEEDS.map(f => fetchOneFeed(f));
-    const results = await Promise.all(promises);
-    allNews = results.flat().sort((a, b) => b.pubDate - a.pubDate).slice(0, 40);
+    const board = document.getElementById('news-board');
+    if (!allNews.length) board.innerHTML = '<div class="news-loading">Cargando noticias...</div>';
+
+    // Escalonamos las peticiones (no las 10 de golpe) para no reventar rss2json
+    const results = [];
+    for (const feed of NEWS_FEEDS) {
+      results.push(await fetchOneFeed(feed));
+      await sleep(300);
+    }
+    const merged = results.flat().sort((a, b) => b.pubDate - a.pubDate);
+    if (merged.length) {
+      allNews = merged.slice(0, 80);
+      const cache = loadCached();
+      cache.news = allNews;
+      saveCached(cache);
+    }
     renderNews();
   }
-  
-  function renderNews() {
-    const grid = document.getElementById('news-grid');
-    const filtered = currentFilter === 'all' ? allNews : allNews.filter(n => n.category === currentFilter);
-    
-    if (filtered.length === 0) {
-      grid.innerHTML = '<div class="news-empty">No hay noticias en esta categoría</div>';
-      return;
-    }
-    
-    grid.innerHTML = filtered.map(n => `
+
+  function newsItemHTML(n) {
+    return `
       <a class="news-item" href="${n.link}" target="_blank" rel="noopener">
         <div class="news-meta">
-          <span class="news-badge badge-${n.category}">${getBadgeName(n.category)}</span>
           <span class="news-source">${n.source}</span>
           <span class="news-lang">${n.lang === 'es' ? '🇪🇸' : '🇬🇧'}</span>
           <span class="news-time">${timeAgo(n.pubDate)}</span>
         </div>
         <div class="news-title-text">${n.title}</div>
-      </a>
-    `).join('');
+      </a>`;
   }
-  
+
+  function renderNews() {
+    const board = document.getElementById('news-board');
+    if (!allNews.length) {
+      board.innerHTML = '<div class="news-loading">No hay noticias disponibles</div>';
+      return;
+    }
+
+    // Categorías a mostrar según filtro
+    const cats = currentFilter === 'all'
+      ? NEWS_CATS
+      : NEWS_CATS.filter(c => c.key === currentFilter);
+
+    board.innerHTML = cats.map(cat => {
+      const items = allNews.filter(n => n.category === cat.key);
+      const body = items.length
+        ? items.map(newsItemHTML).join('')
+        : '<div class="news-col-empty">Sin noticias ahora mismo</div>';
+      return `
+        <div class="news-column ${cat.cls}">
+          <div class="news-col-header">
+            <span class="news-col-dot"></span>
+            <span class="news-col-title">${cat.name}</span>
+            <span class="news-col-count">${items.length}</span>
+          </div>
+          <div class="news-col-body">${body}</div>
+        </div>`;
+    }).join('');
+  }
+
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1267,7 +1357,7 @@
       renderNews();
     });
   });
-  
+
   // ============================================
   // NOTES (localStorage)
   // ============================================
@@ -1283,29 +1373,28 @@
       notesStatus.textContent = 'Guardado ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
     }, 500);
   });
-  
+
   // ============================================
   // REFRESH
   // ============================================
   async function refreshAll() {
     const btn = document.getElementById('refresh-btn');
     btn.classList.add('loading');
-    
-    await Promise.all([
-      fetchAllPrices(),
-      fetchFearGreed(),
-      fetchAllNews()
-    ]);
-    
+    await Promise.all([ fetchAllPrices(), fetchFearGreed(), fetchAllNews() ]);
     btn.classList.remove('loading');
   }
-  
+
   // ============================================
-  // INIT
+  // INIT · cada fuente a su propio ritmo (no todo junto)
   // ============================================
-  renderFromCache();  // pinta lo que haya en caché mientras carga
-  refreshAll();       // carga datos frescos
-  setInterval(refreshAll, REFRESH_INTERVAL_MS);
+  renderFromCache();   // pinta caché mientras carga
+  fetchAllPrices();
+  fetchFearGreed();
+  fetchAllNews();
+
+  setInterval(fetchAllPrices, PRICE_INTERVAL_MS);   // 1 min
+  setInterval(fetchAllNews,   NEWS_INTERVAL_MS);    // 5 min
+  setInterval(fetchFearGreed, FG_INTERVAL_MS);      // 15 min
 </script>
 
 </body>
